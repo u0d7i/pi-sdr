@@ -1,1 +1,1 @@
-# pi-sdr
+# Raspberry Pi Software Defined Radio Station
