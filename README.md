@@ -1,1 +1,1 @@
-# Raspberry Pi Software Defined Radio Station
+# Raspberry Pi SDR (Software Defined Radio) Station
