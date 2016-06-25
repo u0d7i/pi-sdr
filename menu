@@ -1,0 +1,83 @@
+#!/bin/bash
+
+# place me in /usr/local/bin/
+
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games
+KEYS="/usr/local/bin/keys.py" # button handling script
+
+calc_size(){
+  W=$(($(tput cols)-4))
+  H=$(($(tput lines)-4))
+  # rpi screen is 40x30
+  #W=$((40-4))
+  #H=$((30-4))
+}
+
+show_err(){
+  whiptail --msgbox --title "Error" "Error: $@" ${H} ${W}
+}
+
+show_msg(){
+  whiptail --msgbox --title "Info" "$@" ${H} ${W}
+}
+
+do_getmode(){
+  # not implemented yet
+  echo "unknown"
+}
+do_sysinfo(){
+  s_mode=$(do_getmode)
+  s_ip=$(hostname -I)
+  s_eth0_status=$(cat /sys/class/net/eth0/operstate)
+  s_wlan0_status=$(cat /sys/class/net/wlan0/operstate)
+  s_uptime=$(uptime -p)
+  s_date=$(date +"%F %T %Z")
+  s_disk=$(df -h / | awk '{print $2, $3, $4, $5}')
+  s_mem=$(free -h | sed 's/^Mem://' | head -2 | awk '{print $1, $2, $3}')
+  s_load=$(cat /proc/loadavg | awk '{print $1, $2, $3}')
+  whiptail --msgbox --title "System Info" "\
+Mode: $s_mode
+IP: $s_ip
+eth0: $s_eth0_status
+wlan0: $s_wlan0_status
+Uptime: $s_uptime
+Date: $s_date
+
+Disk:
+$s_disk
+
+Mem:
+$s_mem
+
+Load averages 1/5/15:
+$s_load
+
+" ${H} ${W}
+}
+
+# hmm
+setterm -powersave off -powerdown 0 -blank 0
+# check if we have key handling running on startup
+pgrep -f ${KEYS} >/dev/null || sudo ${KEYS} &
+
+calc_size
+while true; do
+  RET=$(whiptail --clear --nocancel --notags --title "Main Menu" --menu "" ${H} ${W} 9 \
+    "1" "System info" \
+    "2" "Connectivity" \
+    "3" "Security" \
+    "4" "Radio" \
+    "0" "Exit/Reload" 3>&1 1>&2 2>&3)
+  if [ $? -eq 0 ]; then
+    case "$RET" in
+      1) do_sysinfo;;
+      2) show_msg "Not implemented yet";;
+      3) show_msg "Not implemented yet";;
+      4) show_msg "Not implemented yet";;
+      0) exit;;
+      *) show_err "unrecognized option";;
+    esac
+  else
+    exit
+  fi
+done
