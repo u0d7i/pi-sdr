@@ -21,4 +21,8 @@ $ diff -U 0 /etc/systemd/system/autologin@.service /etc/systemd/system/autologin
 @@ -28 +28 @@
 -ExecStart=-/sbin/agetty --autologin pi --noclear %I $TERM
 +ExecStart=-/sbin/agetty --autologin menu --noclear %I $TERM
+
+$ grep uinput /etc/modules
+uinput
+
 ```
